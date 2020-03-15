@@ -5,6 +5,8 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <AssemblyVersion></AssemblyVersion>
+    </PropertyGroup>
+    <PropertyGroup  Condition="'$(CONFIG)'!='RELEASE'">
         <NuspecFile>NuGetDefense.Core.nuspec</NuspecFile>
     </PropertyGroup>
 

@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGetDefense.Core", "NuGetDefense.Core\NuGetDefense.Core.csproj", "{6D8BDE18-898B-42EC-8A13-A62CE49DA597}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreTests", "CoreTests\CoreTests.csproj", "{31CF7EB9-AA6A-4686-A14E-D8A42B2F877B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{6D8BDE18-898B-42EC-8A13-A62CE49DA597}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D8BDE18-898B-42EC-8A13-A62CE49DA597}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D8BDE18-898B-42EC-8A13-A62CE49DA597}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31CF7EB9-AA6A-4686-A14E-D8A42B2F877B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31CF7EB9-AA6A-4686-A14E-D8A42B2F877B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31CF7EB9-AA6A-4686-A14E-D8A42B2F877B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31CF7EB9-AA6A-4686-A14E-D8A42B2F877B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
