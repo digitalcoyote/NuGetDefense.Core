@@ -1,6 +1,6 @@
-# NuGetDefense.OSSIndex
+# NuGetDefense.Core
 
-[![Join the chat at https://gitter.im/NuGetDefense/community](https://badges.gitter.im/NuGetDefense/community.svg)](https://gitter.im/NuGetDefense/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/NuGetDefense/community](https://badges.gitter.im/NuGetDefense/community.svg)](https://gitter.im/NuGetDefense/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)  [![NuGet version](https://badge.fury.io/nu/NuGetDefense.Core.svg)](https://badge.fury.io/nu/NuGetDefense.Core)
 
 NuGetDefense.Core includes the core functionality from NuGetDefense and is base package for creating a NuGetDefense style package.
   
