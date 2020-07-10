@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using NuGetDefense;
 using NuGetDefense.Core;
-using NuGetDefense.NVD;
 using Xunit;
 
 namespace CoreTests

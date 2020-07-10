@@ -1,10 +1,23 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
-namespace NuGetDefense.NVD
+namespace NuGetDefense
 {
-    public static class VulnDictExtensionMethods
+    public static class ExtensionMethods
     {
+        internal static IEnumerable<T> SkipLast<T>(this IEnumerable<T> iEnumberable, int count)
+        {
+            return iEnumberable.Take(iEnumberable.Count() - count);
+        }
+        
+        public static XAttribute AttributeIgnoreCase(this XElement x, string name)
+        {
+            return x.Attributes()
+                .FirstOrDefault(a => a.Name.ToString().Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+        
         public static Dictionary<string, VulnerabilityEntry> FindPackageVulnerabilities(this Dictionary<string, Dictionary<string, VulnerabilityEntry>> vulnDict,
             string packageId)
         {
