@@ -17,7 +17,7 @@ namespace NuGetDefense.Core
         ///     Loads NuGet packages in use form packages.config or PackageReferences in the project file
         /// </summary>
         /// <returns></returns>
-        public Dictionary<string, NuGetPackage> LoadPackages(string projectFile, bool checkTransitiveDependencies = true)
+        public Dictionary<string, NuGetPackage> LoadPackages(string projectFile, string targetFramework = "", bool checkTransitiveDependencies = true)
         {
             var pkgConfig = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(projectFile), "packages.config");
             var legacy = File.Exists(pkgConfig);
@@ -45,7 +45,7 @@ namespace NuGetDefense.Core
                             }).ToDictionary(p => p.Id);;
                 if(!legacy)
                 {
-                    var resolvedPackages = dotnetListPackages(projectFile);
+                    var resolvedPackages = dotnetListPackages(projectFile, targetFramework);
 
                     if (checkTransitiveDependencies)
                     {
@@ -104,12 +104,12 @@ namespace NuGetDefense.Core
         /// </summary>
         /// <param name="projectFile"></param>
         /// <returns></returns>
-        private static Dictionary<string, NuGetPackage> dotnetListPackages(string projectFile)
+        private static Dictionary<string, NuGetPackage> dotnetListPackages(string projectFile, string targetFramework)
         {
             Dictionary<string, NuGetPackage> pkgs;
             var startInfo = new ProcessStartInfo("dotnet")
             {
-                Arguments = $"list {projectFile} package --include-transitive",
+                Arguments = $"list {projectFile} package --include-transitive{(string.IsNullOrWhiteSpace(targetFramework) ? "" : $" --framework {targetFramework}")}",
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
