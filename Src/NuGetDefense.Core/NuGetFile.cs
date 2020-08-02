@@ -104,12 +104,12 @@ namespace NuGetDefense.Core
         /// </summary>
         /// <param name="projectFile"></param>
         /// <returns></returns>
-        private static Dictionary<string, NuGetPackage> dotnetListPackages(string projectFile, string targetFramework)
+        public static Dictionary<string, NuGetPackage> dotnetListPackages(string projectFile, string targetFramework)
         {
             Dictionary<string, NuGetPackage> pkgs;
             var startInfo = new ProcessStartInfo("dotnet")
             {
-                Arguments = $"list {projectFile} package --include-transitive{(string.IsNullOrWhiteSpace(targetFramework) ? "" : $" --framework {targetFramework}")}",
+                Arguments = $"list \"{projectFile}\" package --include-transitive{(string.IsNullOrWhiteSpace(targetFramework) ? "" : $" --framework {targetFramework}")}",
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
@@ -119,25 +119,38 @@ namespace NuGetDefense.Core
             dotnet.WaitForExit();
             var output = dotnet.StandardOutput.ReadToEnd();
 
-            var lines = output.Split(Convert.ToChar(Environment.NewLine));
-            var topLevelPackageResolvedIndex = lines[2].IndexOf("Resolved") - 8;
-            var transitiveHeaderIndex = Array.FindIndex(lines, l => l.Contains("Transitive Package"));
-            pkgs = lines.Skip(3).Take(transitiveHeaderIndex - 4).Select(l => new NuGetPackage
-            {
-                Id = l.Substring(l.IndexOf(">") + 2, topLevelPackageResolvedIndex - l.IndexOf(">") + 3).Trim(),
-                Version = l.Substring(topLevelPackageResolvedIndex).Trim()
-            }).ToDictionary(p => p.Id);;
-                
-            var transitiveResolvedColumnStart = output.Split(Convert.ToChar(Environment.NewLine))[transitiveHeaderIndex].IndexOf("Resolved") - 8;
+            pkgs = ParseListPackages(output);
 
-            pkgs.Concat(lines.Skip(transitiveHeaderIndex + 1)
+            return pkgs;
+        }
+
+        public static Dictionary<string, NuGetPackage> ParseListPackages(string dotnetListOutput)
+        {
+            var lines = dotnetListOutput.Split(Convert.ToChar(Environment.NewLine));
+            var topLevelPackageResolvedIndex = lines[2].IndexOf("Resolved");
+            var topLevelPackageRequestedIndex = lines[2].IndexOf("Requested");
+            var transitiveHeaderIndex = Array.FindIndex(lines, l => l.Contains("Transitive Package"));
+            var pkgs = lines.Skip(3).Take(transitiveHeaderIndex - 4).Select(l => new NuGetPackage
+            {
+                Id = l.Substring(l.IndexOf(">") + 2, topLevelPackageRequestedIndex - l.IndexOf(">") - 2).Trim(),
+                Version = l.Substring(topLevelPackageResolvedIndex).Trim()
+            }).ToDictionary(p => p.Id);
+
+            var transitiveResolvedColumnStart = lines[transitiveHeaderIndex].IndexOf("Resolved") - 8;
+
+            var transitives =lines.Skip(transitiveHeaderIndex + 1)
                 .SkipLast(2).Where(s => !string.IsNullOrWhiteSpace(s))
                 .Select(l => new NuGetPackage
                 {
                     Id = l.Substring(l.IndexOf(">") + 2, transitiveResolvedColumnStart - l.IndexOf(">") + 3).Trim(),
                     Version = l.Substring(transitiveResolvedColumnStart).Trim()
-                }).ToDictionary(p => p.Id));
+                });
 
+            foreach (var transitiveDep in transitives)
+            {
+                pkgs.Add(transitiveDep.Id, transitiveDep);
+            }
+            
             return pkgs;
         }
     }
