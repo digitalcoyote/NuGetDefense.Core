@@ -1,3 +1,7 @@
+using System.IO;
+using System.Net.Mime;
+using System.Reflection;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using NuGetDefense;
 using NuGetDefense.Core;
 using Xunit;
@@ -24,6 +28,18 @@ namespace CoreTests
             Assert.True(dependencies["Bootstrap"].Version == "3.0.7");
             Assert.True(dependencies["NuGetDefense"].Version == "1.0.6");
             Assert.True(dependencies["jQuery"].Version == "1.9.0");
+        }
+
+        [Fact]
+        public void LegacyPackagesLoad()
+        {
+            var nugetFile = new NuGetFile();
+            var net461TestProjectDirectory =
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetAssemblyLocation())!, "TestFiles",
+                    "net461.TestLib");
+            var packages = nugetFile.LoadPackages(Path.Combine(net461TestProjectDirectory , "net461.TestLib.csproj"));
+            Assert.Equal(2 , packages.Count);
+            Assert.Equal(Path.Combine(net461TestProjectDirectory, "packages.config"), nugetFile.Path);
         }
     }
 }

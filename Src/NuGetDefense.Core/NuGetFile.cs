@@ -24,8 +24,8 @@ namespace NuGetDefense.Core
             Path = legacy ? pkgConfig : projectFile;
             Dictionary<string, NuGetPackage> pkgs = new Dictionary<string, NuGetPackage>();
 
-                if (System.IO.Path.GetFileName(projectFile) == "packages.config")
-                    pkgs = XElement.Load(projectFile, LoadOptions.SetLineInfo).DescendantsAndSelf("package")
+                if (System.IO.Path.GetFileName(Path) == "packages.config")
+                    pkgs = XElement.Load(Path, LoadOptions.SetLineInfo).DescendantsAndSelf("package")
                         .Where(x => RemoveInvalidVersions(x))
                         .Select(x => new NuGetPackage
                         {
@@ -33,7 +33,7 @@ namespace NuGetDefense.Core
                             LineNumber = ((IXmlLineInfo) x).LineNumber, LinePosition = ((IXmlLineInfo) x).LinePosition
                         }).ToDictionary(p => p.Id);
                 else
-                    pkgs = XElement.Load(projectFile, LoadOptions.SetLineInfo).DescendantsAndSelf("PackageReference")
+                    pkgs = XElement.Load(Path, LoadOptions.SetLineInfo).DescendantsAndSelf("PackageReference")
                         .Where(x => RemoveInvalidVersions(x))
                         .Select(
                             x => new NuGetPackage
@@ -45,7 +45,7 @@ namespace NuGetDefense.Core
                             }).ToDictionary(p => p.Id);;
                 if(!legacy)
                 {
-                    var resolvedPackages = dotnetListPackages(projectFile, targetFramework);
+                    var resolvedPackages = dotnetListPackages(Path, targetFramework);
 
                     if (checkTransitiveDependencies)
                     {
