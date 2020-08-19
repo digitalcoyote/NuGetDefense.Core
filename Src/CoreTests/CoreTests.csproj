@@ -23,10 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="TestFiles" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Include="TestFiles\net461.TestLib\net461.TestLib.csproj">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
@@ -34,6 +30,13 @@
 
     <ItemGroup>
       <None Update="TestFiles\net461.TestLib\packages.config">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\NuGetDefense.Core\NuGetDefense.Core.csproj">
+        <Link>TestFiles/netcoreapp3.1.Lib/NuGetDefense.Core.csproj</Link>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

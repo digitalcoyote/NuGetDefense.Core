@@ -11,21 +11,18 @@ namespace NuGetDefense
         {
             return iEnumberable.Take(iEnumberable.Count() - count);
         }
-        
+
         public static XAttribute AttributeIgnoreCase(this XElement x, string name)
         {
-            return x.Attributes()
-                .FirstOrDefault(a => a.Name.ToString().Equals(name, StringComparison.OrdinalIgnoreCase));
+            return x.Attributes().FirstOrDefault(a => a.Name.ToString().Equals(name, StringComparison.OrdinalIgnoreCase));
         }
-        
-        public static Dictionary<string, VulnerabilityEntry> FindPackageVulnerabilities(this Dictionary<string, Dictionary<string, VulnerabilityEntry>> vulnDict,
-            string packageId)
+
+        public static Dictionary<string, VulnerabilityEntry> FindPackageVulnerabilities(this Dictionary<string, Dictionary<string, VulnerabilityEntry>> vulnDict, string packageId)
         {
             return vulnDict[packageId];
         }
 
-        public static VulnerabilityEntry FindCve(
-            this Dictionary<string, Dictionary<string, VulnerabilityEntry>> vulnDict, string cve)
+        public static VulnerabilityEntry FindCve(this Dictionary<string, Dictionary<string, VulnerabilityEntry>> vulnDict, string cve)
         {
             return vulnDict.Values.FirstOrDefault(p => p.ContainsKey(cve))?[cve];
         }

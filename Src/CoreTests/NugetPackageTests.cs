@@ -1,6 +1,6 @@
 using FluentAssertions;
-using Xunit;
 using NuGetDefense;
+using Xunit;
 
 namespace CoreTests
 {
@@ -9,7 +9,7 @@ namespace CoreTests
         [Fact]
         public void PackageUrlTest()
         {
-            var pkg = new NuGetPackage()
+            var pkg = new NuGetPackage
             {
                 Id = "jquery",
                 Version = "1.5.1"
