@@ -44,7 +44,6 @@ namespace NuGetDefense.Core
                             LineNumber = ((IXmlLineInfo) x).LineNumber,
                             LinePosition = ((IXmlLineInfo) x).LinePosition
                         }).ToDictionary(p => p.Id);
-            ;
             if (!legacy)
             {
                 var resolvedPackages = dotnetListPackages(Path, targetFramework);
@@ -67,8 +66,8 @@ namespace NuGetDefense.Core
             }
             else if (checkTransitiveDependencies)
             {
-                Console.WriteLine(
-                    $"{Path} : Warning : Transitive dependency checking skipped. 'dotnet list package --include-transitive' only supports SDK style NuGet Package References");
+                Console.WriteLine(MsBuild.Log(Path, MsBuild.Category.Warning,
+                    "Transitive dependency checking skipped. 'dotnet list package --include-transitive' only supports SDK style NuGet Package References"));
             }
 
             return pkgs;
@@ -93,10 +92,10 @@ namespace NuGetDefense.Core
         private bool RemoveInvalidVersions(XElement x)
         {
             if (NuGetVersion.TryParse(x.AttributeIgnoreCase("Version")?.Value, out var version)) return true;
-            Console.WriteLine(
+            Console.WriteLine(MsBuild.Log(Path, MsBuild.Category.Warning, ((IXmlLineInfo) x).LineNumber, ((IXmlLineInfo) x).LinePosition,
                 version != null
-                    ? $"{Path}({((IXmlLineInfo) x).LineNumber},{((IXmlLineInfo) x).LinePosition}) : Warning : {version} is not a valid NuGetVersion and is being ignored. See 'https://docs.microsoft.com/en-us/nuget/concepts/package-versioning' for more info on valid versions"
-                    : $"{Path}({((IXmlLineInfo) x).LineNumber},{((IXmlLineInfo) x).LinePosition}) : Warning : Unable to find a version for this package. It will be ignored.");
+                    ? $"{version} is not a valid NuGetVersion and is being ignored. See 'https://docs.microsoft.com/en-us/nuget/concepts/package-versioning' for more info on valid versions"
+                    : "Unable to find a version for this package. It will be ignored."));
             return false;
         }
 

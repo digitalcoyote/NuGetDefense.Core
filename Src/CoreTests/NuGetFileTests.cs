@@ -10,7 +10,7 @@ namespace CoreTests
     public class NuGetFileTests
     {
         [Fact]
-        public void dotnetListPackagesTest()
+        public void DotNetListPackagesTest()
         {
             var dependencies = NuGetFile.ParseListPackages(
                 @"Project 'netcoreapp3.1.TestLib' has the following package references
