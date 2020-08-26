@@ -11,18 +11,27 @@ namespace NuGetDefense.Core
 {
     public class NuGetFile
     {
+        /// <summary>
+        ///     Boolean indicating the Path is for a packages.config and not a project file.
+        /// </summary>
+        public bool PackagesConfig;
+
         public string Path;
+
+        public NuGetFile(string path)
+        {
+            var pkgConfig = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), "packages.config");
+            PackagesConfig = File.Exists(pkgConfig);
+            Path = PackagesConfig ? pkgConfig : path;
+        }
 
         /// <summary>
         ///     Loads NuGet packages in use form packages.config or PackageReferences in the project file
         /// </summary>
         /// <returns></returns>
-        public Dictionary<string, NuGetPackage> LoadPackages(string projectFile, string targetFramework = "",
+        public Dictionary<string, NuGetPackage> LoadPackages(string targetFramework = "",
             bool checkTransitiveDependencies = true)
         {
-            var pkgConfig = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(projectFile), "packages.config");
-            var legacy = File.Exists(pkgConfig);
-            Path = legacy ? pkgConfig : projectFile;
             var pkgs = new Dictionary<string, NuGetPackage>();
 
             if (System.IO.Path.GetFileName(Path) == "packages.config")
@@ -44,7 +53,7 @@ namespace NuGetDefense.Core
                             LineNumber = ((IXmlLineInfo) x).LineNumber,
                             LinePosition = ((IXmlLineInfo) x).LinePosition
                         }).ToDictionary(p => p.Id);
-            if (!legacy)
+            if (!PackagesConfig)
             {
                 var resolvedPackages = dotnetListPackages(Path, targetFramework);
 

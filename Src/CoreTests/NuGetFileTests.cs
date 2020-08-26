@@ -32,27 +32,55 @@ namespace CoreTests
         [Fact]
         public void LegacyPackagesLoad()
         {
-            var nugetFile = new NuGetFile();
             var net461TestProjectDirectory =
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetAssemblyLocation())!, "TestFiles",
                     "net461.TestLib");
-            var packages = nugetFile.LoadPackages(Path.Combine(net461TestProjectDirectory, "net461.TestLib.csproj"));
+            var nugetFile = new NuGetFile(Path.Combine(net461TestProjectDirectory, "net461.TestLib.csproj"));
+
+            var packages = nugetFile.LoadPackages();
             Assert.Equal(2, packages.Count);
             Assert.Equal(Path.Combine(net461TestProjectDirectory, "packages.config"), nugetFile.Path);
         }
 
         [Fact]
-        public void SdkPackagesLoad()
+        public void SdkPackagesLoadNoTransitiveDependencies()
         {
-            var nugetFile = new NuGetFile();
             var netcoreapp31TestProjectDirectory =
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetAssemblyLocation())!, "TestFiles",
                     "netcoreapp3.1.Lib");
-            var projectFile = Path.Combine(netcoreapp31TestProjectDirectory, "NuGetDefense.Core.csproj");
 
+            var projectFile = Path.Combine(netcoreapp31TestProjectDirectory, "NuGetDefense.Core.csproj");
+            var nugetFile = new NuGetFile(projectFile);
+
+            RestorePackage(projectFile);
+
+            var packages = nugetFile.LoadPackages("netstandard2.0", false);
+            Assert.Equal(2, packages.Count);
+            Assert.Equal(projectFile, nugetFile.Path);
+        }
+
+        [Fact]
+        public void SdkPackagesLoadWithTransitiveDependencies()
+        {
+            var netcoreapp31TestProjectDirectory =
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetAssemblyLocation())!, "TestFiles",
+                    "netcoreapp3.1.Lib");
+
+            var projectFile = Path.Combine(netcoreapp31TestProjectDirectory, "NuGetDefense.Core.csproj");
+            var nugetFile = new NuGetFile(projectFile);
+
+            RestorePackage(projectFile);
+
+            var packages = nugetFile.LoadPackages("netstandard2.0");
+            Assert.Equal(14, packages.Count);
+            Assert.Equal(projectFile, nugetFile.Path);
+        }
+
+        private static void RestorePackage(string projectFile)
+        {
             var startInfo = new ProcessStartInfo("dotnet")
             {
-                Arguments = $"dotnet restore \"{projectFile}\" ",
+                Arguments = $"restore \"{projectFile}\"",
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false
@@ -60,10 +88,6 @@ namespace CoreTests
             var dotnet = new Process {StartInfo = startInfo};
             dotnet.Start();
             dotnet.WaitForExit();
-
-            var packages = nugetFile.LoadPackages(projectFile);
-            Assert.Equal(2, packages.Count);
-            Assert.Equal(projectFile, nugetFile.Path);
         }
     }
 }
