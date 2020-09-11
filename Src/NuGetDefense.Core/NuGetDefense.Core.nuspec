@@ -3,7 +3,7 @@
   <metadata>
     <id>NuGetDefense.Core</id>
     <title>NuGetDefense.Core</title>
-    <version>1.0.6.0-beta5</version>
+    <version>1.0.6.1-beta001</version>
     <authors>Curtis Carter</authors>
     <owners>Curtis Carter</owners>
     <projectUrl>https://github.com/DigitalCoyote/NuGetDefense</projectUrl>
@@ -16,7 +16,8 @@
     <tags>Security</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="MessagePack" version="2.1.115" exclude="Build,Analyzers" />
+        <dependency id="MessagePack" version="2.1.165" exclude="Build,Analyzers" />
+        <dependency id="NuGet.Versioning" version="5.7.0" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

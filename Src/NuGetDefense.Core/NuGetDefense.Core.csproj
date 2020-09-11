@@ -11,8 +11,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="MessagePack" Version="2.1.115" />
-      <PackageReference Include="NuGet.Versioning" Version="5.6.0" />
+      <PackageReference Include="MessagePack" Version="2.1.165" />
+      <PackageReference Include="NuGet.Versioning" Version="5.7.0" />
     </ItemGroup>
 
     <ItemGroup>
