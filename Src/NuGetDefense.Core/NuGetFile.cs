@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
 using NuGet.Versioning;
@@ -70,7 +72,7 @@ namespace NuGetDefense.Core
                 }
                 else
                 {
-                    foreach (var pkg in pkgs) pkgs[pkg.Key].Version = resolvedPackages[pkg.Key].Version;
+                    foreach (var pkg in pkgs.Where(p => resolvedPackages.ContainsKey(p.Key))) pkgs[pkg.Key].Version = resolvedPackages[pkg.Key].Version;
                 }
             }
             else if (checkTransitiveDependencies)
@@ -122,34 +124,50 @@ namespace NuGetDefense.Core
                     $"list \"{projectFile}\" package --include-transitive{(string.IsNullOrWhiteSpace(targetFramework) ? "" : $" --framework {targetFramework}")}",
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
+                RedirectStandardError = true,
                 UseShellExecute = false
             };
             var dotnet = new Process {StartInfo = startInfo};
-            dotnet.Start();
-            dotnet.WaitForExit();
-            var output = dotnet.StandardOutput.ReadToEnd();
+            var outputBuilder = new StringBuilder();
+            var errorOutputBuilder = new StringBuilder();
 
-            pkgs = ParseListPackages(output);
+            dotnet.OutputDataReceived += (sender, args) => outputBuilder.AppendLine(args.Data);
+            dotnet.ErrorDataReceived += (sender, args) => errorOutputBuilder.AppendLine(args.Data);
+            dotnet.Start();
+            dotnet.BeginOutputReadLine();
+            dotnet.BeginErrorReadLine();
+            if (!SpinWait.SpinUntil(() => dotnet.HasExited, TimeSpan.FromMinutes(1)))
+            {
+                Console.WriteLine("dotnet list failed to exit after one minute");
+                return new Dictionary<string, NuGetPackage>();
+            }
+
+            if (errorOutputBuilder.Length > 0) Console.WriteLine($"`dotnet list` Errors: {errorOutputBuilder}");
+            pkgs = ParseListPackages(outputBuilder.ToString());
 
             return pkgs;
         }
 
         public static Dictionary<string, NuGetPackage> ParseListPackages(string dotnetListOutput)
         {
-            var lines = dotnetListOutput.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
+            var lines = dotnetListOutput.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
             if (lines.Length < 3) throw new Exception("Invalid dotnet list output. Run `dotnet restore` then build again.");
             var topLevelPackageResolvedIndex = lines[2].IndexOf("Resolved");
             var topLevelPackageRequestedIndex = lines[2].IndexOf("Requested");
             var transitiveHeaderIndex = Array.FindIndex(lines, l => l.Contains("Transitive Package"));
-            var pkgs = lines.Skip(3).Take(transitiveHeaderIndex - 4)
+            var parsingLinq = lines.Skip(3);
+            if (transitiveHeaderIndex > -1) parsingLinq = parsingLinq.Take(transitiveHeaderIndex - 3);
+            var pkgs = parsingLinq.Where(s => !string.IsNullOrWhiteSpace(s) && s.IndexOf(">") != -1)
                 .Select(l => new NuGetPackage
                     {Id = l.Substring(l.IndexOf(">") + 2, topLevelPackageRequestedIndex - l.IndexOf(">") - 2).Trim(), Version = l.Substring(topLevelPackageResolvedIndex).Trim()})
                 .ToDictionary(p => p.Id);
 
+            if (transitiveHeaderIndex == -1) return pkgs;
+
             var transitiveResolvedColumnStart = lines[transitiveHeaderIndex].IndexOf("Resolved") - 8;
 
             var transitives = lines.Skip(transitiveHeaderIndex + 1)
-                .SkipLast(2).Where(s => !string.IsNullOrWhiteSpace(s))
+                .Where(s => !string.IsNullOrWhiteSpace(s) && s.IndexOf(">") != -1)
                 .Select(l => new NuGetPackage
                 {
                     Id = l.Substring(l.IndexOf(">") + 2, transitiveResolvedColumnStart - l.IndexOf(">") + 3).Trim(),
