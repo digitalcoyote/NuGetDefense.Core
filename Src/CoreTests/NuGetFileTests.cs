@@ -9,20 +9,24 @@ namespace CoreTests
 {
     public class NuGetFileTests
     {
-        [Fact]
-        public void DotNetListPackagesTest()
-        {
-            var dependencies = NuGetFile.ParseListPackages(
-                @"Project 'netcoreapp3.1.TestLib' has the following package references
+        [Theory, InlineData(@"Project 'netcoreapp3.1.TestLib' has the following package references
    [netcoreapp3.1]: 
    Top-level Package      Requested   Resolved
    > Bootstrap            3.0.0       3.0.7   
    > NuGetDefense         1.0.8       1.0.6   
-
    Transitive Package      Resolved
    > jQuery                1.9.0   
-
-");
+"), InlineData(@"Das Projekt ""ConsoleApp1"" enthält die folgenden Paketverweise.
+   [netcoreapp3.1]: 
+   Paket oberster Ebene Angefordert Aufgelöst
+   > Bootstrap            3.0.0       3.0.7   
+   > NuGetDefense         1.0.8       1.0.6   
+   Transitive Package      Resolved
+   > jQuery                1.9.0   
+")]
+        public void DotNetListPackagesTest(string dotnetOutput)
+        {
+            var dependencies = NuGetFile.ParseListPackages(dotnetOutput);
             Assert.True(dependencies.Count == 3);
             Assert.True(dependencies["Bootstrap"].Version == "3.0.7");
             Assert.True(dependencies["NuGetDefense"].Version == "1.0.6");

@@ -152,26 +152,44 @@ namespace NuGetDefense.Core
         {
             var lines = dotnetListOutput.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
             if (lines.Length < 3) throw new Exception("Invalid dotnet list output. Run `dotnet restore` then build again.");
-            var topLevelPackageResolvedIndex = lines[2].IndexOf("Resolved");
-            var topLevelPackageRequestedIndex = lines[2].IndexOf("Requested");
-            var transitiveHeaderIndex = Array.FindIndex(lines, l => l.Contains("Transitive Package"));
-            var parsingLinq = lines.Skip(3);
-            if (transitiveHeaderIndex > -1) parsingLinq = parsingLinq.Take(transitiveHeaderIndex - 3);
-            var pkgs = parsingLinq.Where(s => !string.IsNullOrWhiteSpace(s) && s.IndexOf(">") != -1)
-                .Select(l => new NuGetPackage
-                    {Id = l.Substring(l.IndexOf(">") + 2, topLevelPackageRequestedIndex - l.IndexOf(">") - 2).Trim(), Version = l.Substring(topLevelPackageResolvedIndex).Trim()})
-                .ToDictionary(p => p.Id);
-
-            if (transitiveHeaderIndex == -1) return pkgs;
-
-            var transitiveResolvedColumnStart = lines[transitiveHeaderIndex].IndexOf("Resolved") - 8;
-
-            var transitives = lines.Skip(transitiveHeaderIndex + 1)
-                .Where(s => !string.IsNullOrWhiteSpace(s) && s.IndexOf(">") != -1)
-                .Select(l => new NuGetPackage
+            var pkgs = lines
+                // Skip the informational Text at hte beginning
+                .SkipWhile(l => l.IndexOf('>') == -1)
+                // Only Take Pacakges to avoid footers or The Transitive Header
+                .TakeWhile(l => l.IndexOf(">") != -1)
+                .Select(l =>
                 {
-                    Id = l.Substring(l.IndexOf(">") + 2, transitiveResolvedColumnStart - l.IndexOf(">") + 3).Trim(),
-                    Version = l.Substring(transitiveResolvedColumnStart).Trim()
+                    var splitline = l.Split(new string[0], StringSplitOptions.RemoveEmptyEntries);
+                    return new NuGetPackage
+                    {
+                        Id = splitline[1],
+                        Version = splitline[3]
+                    };
+                })
+                .ToDictionary(p => p.Id);
+            
+            var transitivelines = lines
+                // Skip the informational Text at hte beginning
+                .SkipWhile(l => l.IndexOf('>') == -1)
+                // Skip the Direct Dependencies
+                .SkipWhile(l => l.IndexOf(">") != -1)
+                // Skip the Header(s)
+                .SkipWhile(l => l.IndexOf('>') == -1)
+                // Only Take lines that still reference packages
+                .TakeWhile(l => l.IndexOf(">") != -1);
+            
+            if (!transitivelines.Any()) return pkgs;
+            var transitives = 
+                transitivelines
+                .Select(l =>
+                {
+                    var splitline = l.Split(new string[0], StringSplitOptions.RemoveEmptyEntries);
+
+                    return new NuGetPackage
+                    {
+                        Id = splitline[1],
+                        Version = splitline[2]
+                    };
                 });
 
             foreach (var transitiveDep in transitives) pkgs.Add(transitiveDep.Id, transitiveDep);
