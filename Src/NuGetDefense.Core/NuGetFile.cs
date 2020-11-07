@@ -156,7 +156,7 @@ namespace NuGetDefense.Core
                 // Skip the informational Text at hte beginning
                 .SkipWhile(l => l.IndexOf('>') == -1)
                 // Only Take Pacakges to avoid footers or The Transitive Header
-                .TakeWhile(l => l.IndexOf(">") != -1)
+                .TakeWhile(l => l.IndexOf('>') != -1)
                 .Select(l =>
                 {
                     var splitline = l.Split(new string[0], StringSplitOptions.RemoveEmptyEntries);
@@ -172,11 +172,12 @@ namespace NuGetDefense.Core
                 // Skip the informational Text at hte beginning
                 .SkipWhile(l => l.IndexOf('>') == -1)
                 // Skip the Direct Dependencies
-                .SkipWhile(l => l.IndexOf(">") != -1)
+                .SkipWhile(l => l.IndexOf('>') != -1)
                 // Skip the Header(s)
                 .SkipWhile(l => l.IndexOf('>') == -1)
                 // Only Take lines that still reference packages
-                .TakeWhile(l => l.IndexOf(">") != -1);
+                .TakeWhile(l => l.IndexOf('>') != -1)
+                .ToArray();
             
             if (!transitivelines.Any()) return pkgs;
             var transitives = 

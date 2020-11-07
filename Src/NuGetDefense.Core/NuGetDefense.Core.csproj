@@ -4,14 +4,18 @@
         <LangVersion>8</LangVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <AssemblyVersion></AssemblyVersion>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(CONFIG)'!='RELEASE'">
+    <PropertyGroup Condition="'$(CONFIG)'=='RELEASE'">
         <NuspecFile>NuGetDefense.Core.nuspec</NuspecFile>
+        <NuspecProperties>version=$(PackageVersion)</NuspecProperties>
     </PropertyGroup>
-
+    <PropertyGroup>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
     <ItemGroup>
-      <PackageReference Include="MessagePack" Version="2.1.165" />
+      <PackageReference Include="MessagePack" Version="2.2.60" />
+      <PackageReference Include="MessagePackAnalyzer" Version="2.2.60" />
       <PackageReference Include="NuGet.Versioning" Version="5.7.0" />
     </ItemGroup>
 

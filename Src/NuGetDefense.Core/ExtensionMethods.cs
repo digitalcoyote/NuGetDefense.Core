@@ -22,7 +22,7 @@ namespace NuGetDefense.Core
             return vulnDict[packageId];
         }
 
-        public static VulnerabilityEntry FindCve(this Dictionary<string, Dictionary<string, VulnerabilityEntry>> vulnDict, string cve)
+        public static VulnerabilityEntry? FindCve(this Dictionary<string, Dictionary<string, VulnerabilityEntry>> vulnDict, string cve)
         {
             return vulnDict.Values.FirstOrDefault(p => p.ContainsKey(cve))?[cve];
         }

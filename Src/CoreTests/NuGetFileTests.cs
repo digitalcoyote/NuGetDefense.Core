@@ -59,7 +59,7 @@ namespace CoreTests
             RestorePackage(projectFile);
 
             var packages = nugetFile.LoadPackages("netstandard2.0", false);
-            Assert.Equal(2, packages.Count);
+            Assert.Equal(3, packages.Count);
             Assert.Equal(projectFile, nugetFile.Path);
         }
 
@@ -76,7 +76,7 @@ namespace CoreTests
             RestorePackage(projectFile);
 
             var packages = nugetFile.LoadPackages("netstandard2.0");
-            Assert.Equal(14, packages.Count);
+            Assert.Equal(16, packages.Count);
             Assert.Equal(projectFile, nugetFile.Path);
         }
 
