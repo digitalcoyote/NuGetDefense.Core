@@ -1,26 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <LangVersion>8</LangVersion>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>9</LangVersion>
+        <TargetFramework>net5.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(CONFIG)'=='RELEASE'">
-        <NuspecFile>NuGetDefense.Core.nuspec</NuspecFile>
-        <NuspecProperties>version=$(PackageVersion)</NuspecProperties>
-    </PropertyGroup>
     <PropertyGroup>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <!--        <IncludeSymbols>true</IncludeSymbols>-->
+        <!--        <SymbolPackageFormat>snupkg</SymbolPackageFormat>-->
+        <Authors>Curtis Carter</Authors>
+        <PackageId>NuGetDefense.Core</PackageId>
+        <Title>NuGetDefense.Core</Title>
+        <PackageProjectUrl>https://github.com/DigitalCoyote/NuGetDefense</PackageProjectUrl>
+        <Description>Provides types for checking for NuGet Dependencies, Reporting Vulnerabilities</Description>
+        <PackageReleaseNotes>https://github.com/digitalcoyote/NuGetDefense/releases</PackageReleaseNotes>
+        <RepositoryUrl>https://github.com/digitalcoyote/NuGetDefense.Core.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Security</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
     <ItemGroup>
-      <PackageReference Include="MessagePack" Version="2.2.60" />
-      <PackageReference Include="MessagePackAnalyzer" Version="2.2.60" />
-      <PackageReference Include="NuGet.Versioning" Version="5.7.0" />
+        <PackageReference Include="MessagePack" Version="2.2.60" />
+        <PackageReference Include="MessagePackAnalyzer" Version="2.2.60" />
+        <PackageReference Include="NuGet.Versioning" Version="5.7.0" />
     </ItemGroup>
-
     <ItemGroup>
-      <Content Include="NuGetDefense.Core.nuspec" />
+        <None Include="icon.png" Pack="true" PackagePath="\"/>
     </ItemGroup>
-
 </Project>

@@ -51,14 +51,14 @@ namespace CoreTests
         {
             var netcoreapp31TestProjectDirectory =
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetAssemblyLocation())!, "TestFiles",
-                    "netcoreapp3.1.Lib");
+                    "net5.0.Lib");
 
             var projectFile = Path.Combine(netcoreapp31TestProjectDirectory, "NuGetDefense.Core.csproj");
             var nugetFile = new NuGetFile(projectFile);
 
             RestorePackage(projectFile);
 
-            var packages = nugetFile.LoadPackages("netstandard2.0", false);
+            var packages = nugetFile.LoadPackages("net5.0", false);
             Assert.Equal(3, packages.Count);
             Assert.Equal(projectFile, nugetFile.Path);
         }
@@ -68,15 +68,15 @@ namespace CoreTests
         {
             var netcoreapp31TestProjectDirectory =
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetAssemblyLocation())!, "TestFiles",
-                    "netcoreapp3.1.Lib");
+                    "net5.0.Lib");
 
             var projectFile = Path.Combine(netcoreapp31TestProjectDirectory, "NuGetDefense.Core.csproj");
             var nugetFile = new NuGetFile(projectFile);
 
             RestorePackage(projectFile);
 
-            var packages = nugetFile.LoadPackages("netstandard2.0");
-            Assert.Equal(16, packages.Count);
+            var packages = nugetFile.LoadPackages("net5.0");
+            Assert.Equal(11, packages.Count);
             Assert.Equal(projectFile, nugetFile.Path);
         }
 
