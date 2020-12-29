@@ -18,13 +18,25 @@ namespace NuGetDefense.Core
         /// </summary>
         public bool PackagesConfig;
 
+        public bool SolutionScan;
+
         public string Path;
+        
+        // TODO: LoadSolutionPackages -> solution level scan returns list of nuget files OR expose dotnet list parsing for NuGetDefense usage.
 
         public NuGetFile(string path)
         {
-            var pkgConfig = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), "packages.config");
-            PackagesConfig = File.Exists(pkgConfig);
-            Path = PackagesConfig ? pkgConfig : path;
+            if (path.EndsWith(".sln"))
+            {
+                Path = path;
+                SolutionScan = true;
+            }
+            else
+            {
+                var pkgConfig = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), "packages.config");
+                PackagesConfig = File.Exists(pkgConfig);
+                Path = PackagesConfig ? pkgConfig : path;
+            }
         }
 
         /// <summary>
@@ -32,7 +44,7 @@ namespace NuGetDefense.Core
         /// </summary>
         /// <returns></returns>
         public Dictionary<string, NuGetPackage> LoadPackages(string targetFramework = "",
-            bool checkTransitiveDependencies = true)
+            bool checkTransitiveDependencies = true, bool checkReferencedProjects = true)
         {
             var pkgs = new Dictionary<string, NuGetPackage>();
 
@@ -57,22 +69,30 @@ namespace NuGetDefense.Core
                         }).ToDictionary(p => p.Id);
             if (!PackagesConfig)
             {
-                var resolvedPackages = dotnetListPackages(Path, targetFramework);
-
-                if (checkTransitiveDependencies)
+                if(pkgs.Count > 0)
                 {
-                    foreach (var pkg in pkgs.Where(
-                        package => resolvedPackages.ContainsKey(package.Key)))
-                    {
-                        resolvedPackages[pkg.Key].LineNumber = pkg.Value.LineNumber;
-                        resolvedPackages[pkg.Key].LinePosition = pkg.Value.LinePosition;
-                    }
+                    Dictionary<string, NuGetPackage[]> projectectReferencePackages;
+                    var resolvedPackages = dotnetListPackages(Path, targetFramework, out projectectReferencePackages);
 
-                    pkgs = resolvedPackages;
+                    if (checkTransitiveDependencies)
+                    {
+                        foreach (var pkg in pkgs.Where(
+                            package => resolvedPackages.ContainsKey(package.Key)))
+                        {
+                            resolvedPackages[pkg.Key].LineNumber = pkg.Value.LineNumber;
+                            resolvedPackages[pkg.Key].LinePosition = pkg.Value.LinePosition;
+                        }
+
+                        pkgs = resolvedPackages;
+                    }
+                    else
+                    {
+                        foreach (var pkg in pkgs.Where(p => resolvedPackages.ContainsKey(p.Key))) pkgs[pkg.Key].Version = resolvedPackages[pkg.Key].Version;
+                    }
                 }
                 else
                 {
-                    foreach (var pkg in pkgs.Where(p => resolvedPackages.ContainsKey(p.Key))) pkgs[pkg.Key].Version = resolvedPackages[pkg.Key].Version;
+                    Console.WriteLine($"Skipping dotnet list package. No Packages found for {Path}.");
                 }
             }
             else if (checkTransitiveDependencies)
@@ -114,9 +134,15 @@ namespace NuGetDefense.Core
         ///     Uses 'dotnet list' to get a list of resolved versions and dependencies
         /// </summary>
         /// <param name="projectFile"></param>
+        /// <param name="targetFramework"></param>
+        /// <param name="projectectReferencePackages"></param>
         /// <returns></returns>
-        public static Dictionary<string, NuGetPackage> dotnetListPackages(string projectFile, string targetFramework)
+        public static Dictionary<string, NuGetPackage> dotnetListPackages(string projectFile,
+            string targetFramework,
+            out Dictionary<string, NuGetPackage[]> projectectReferencePackages)
         {
+            projectectReferencePackages = null;
+
             Dictionary<string, NuGetPackage> pkgs;
             var startInfo = new ProcessStartInfo("dotnet")
             {
@@ -139,10 +165,12 @@ namespace NuGetDefense.Core
             if (!SpinWait.SpinUntil(() => dotnet.HasExited, TimeSpan.FromMinutes(1)))
             {
                 Console.WriteLine("dotnet list failed to exit after one minute");
+                
                 return new Dictionary<string, NuGetPackage>();
             }
 
-            if (errorOutputBuilder.Length > 0) Console.WriteLine($"`dotnet list` Errors: {errorOutputBuilder}");
+            if (errorOutputBuilder.Length > 1) Console.WriteLine($"`dotnet list` Errors: {errorOutputBuilder}");
+
             pkgs = ParseListPackages(outputBuilder.ToString());
 
             return pkgs;
@@ -152,6 +180,13 @@ namespace NuGetDefense.Core
         {
             var lines = dotnetListOutput.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
             if (lines.Length < 3) throw new Exception("Invalid dotnet list output. Run `dotnet restore` then build again.");
+            var pkgs = ParseDotnetListProjectSection(lines);
+
+            return pkgs;
+        }
+
+        private static Dictionary<string, NuGetPackage> ParseDotnetListProjectSection(string[] lines)
+        {
             var pkgs = lines
                 // Skip the informational Text at hte beginning
                 .SkipWhile(l => l.IndexOf('>') == -1)
@@ -167,7 +202,7 @@ namespace NuGetDefense.Core
                     };
                 })
                 .ToDictionary(p => p.Id);
-            
+
             var transitivelines = lines
                 // Skip the informational Text at hte beginning
                 .SkipWhile(l => l.IndexOf('>') == -1)
@@ -178,24 +213,71 @@ namespace NuGetDefense.Core
                 // Only Take lines that still reference packages
                 .TakeWhile(l => l.IndexOf('>') != -1)
                 .ToArray();
-            
-            if (!transitivelines.Any()) return pkgs;
-            var transitives = 
-                transitivelines
-                .Select(l =>
+
+            if (transitivelines.Any())
+            {
+                var transitives =
+                    transitivelines
+                        .Select(l =>
+                        {
+                            var splitline = l.Split(Array.Empty<string>(), StringSplitOptions.RemoveEmptyEntries);
+
+                            return new NuGetPackage
+                            {
+                                Id = splitline[1],
+                                Version = splitline[2]
+                            };
+                        }).ToArray();
+
+                for (var index = 0; index < transitives.Length; index++)
                 {
-                    var splitline = l.Split(new string[0], StringSplitOptions.RemoveEmptyEntries);
-
-                    return new NuGetPackage
-                    {
-                        Id = splitline[1],
-                        Version = splitline[2]
-                    };
-                });
-
-            foreach (var transitiveDep in transitives) pkgs.Add(transitiveDep.Id, transitiveDep);
+                    pkgs.Add(transitives[index].Id, transitives[index]);
+                }
+            }
 
             return pkgs;
+        }
+
+
+        public static Dictionary<string, Dictionary<string, NuGetPackage>> ParseListSlnPackages(string dotnetListOutput)
+        {
+            var projects = new Dictionary<string, Dictionary<string, NuGetPackage>>();
+            //Chunk by indexes of ' or "" containing lines
+            //Each Chunk is a project
+            var lines = dotnetListOutput.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+
+            var projectLines = DotNetListOutputByProject(lines);
+            // I don't like throwing an exception here. An Early return for a bool method with Dict out may be better
+            if (lines.Length < 3) throw new Exception("Invalid dotnet list output. Run `dotnet restore` then build again.");
+            foreach( var projlines in projectLines)
+            {
+                var start = projlines[0].IndexOfAny(new[] {'\'', '\"'}) + 1;
+                var length = projlines[0].LastIndexOfAny(new[] {'\'', '\"'}) - start;
+                var name = projlines[0].Substring(start, length);
+                projects.Add(name, ParseDotnetListProjectSection(projlines));
+            }
+
+            return projects;
+        }
+        
+        public static IEnumerable<string[]> DotNetListOutputByProject(
+            string[] source)
+        {
+            int skip = 0;
+            while(skip < source.Length)
+            {
+                var list = source.Skip(skip).Take(1).ToList();
+                list.AddRange(source.Skip(skip + 1).TakeWhile(x => x.IndexOf('\"', StringComparison.Ordinal) == -1 && x.IndexOf('\'', StringComparison.Ordinal) == -1));
+                var lines = list.ToArray();
+                skip += lines.Length;
+                    
+                yield return lines;
+            }
+        }
+
+        private static bool ParseProjectLines(in IEnumerable<string> projectReferenceLines)
+        {
+            throw new NotImplementedException();
         }
     }
 }

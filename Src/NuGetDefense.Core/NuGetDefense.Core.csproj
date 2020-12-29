@@ -21,11 +21,12 @@
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="MessagePack" Version="2.2.60" />
-        <PackageReference Include="MessagePackAnalyzer" Version="2.2.60" />
-        <PackageReference Include="NuGet.Versioning" Version="5.7.0" />
+        <PackageReference Include="MessagePack" Version="2.2.85" />
+        <PackageReference Include="MessagePackAnalyzer" Version="2.2.85" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
+        <PackageReference Include="NuGet.Versioning" Version="5.8.0" />
     </ItemGroup>
     <ItemGroup>
-        <None Include="icon.png" Pack="true" PackagePath="\"/>
+        <None Include="icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>

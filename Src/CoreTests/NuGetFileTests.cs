@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using NuGetDefense.Core;
@@ -7,6 +8,9 @@ using Xunit;
 
 namespace CoreTests
 {
+    /// <summary>
+    /// LANG=ru_RU.utf8 can be used to generate other language outputs for testing
+    /// </summary>
     public class NuGetFileTests
     {
         [Theory, InlineData(@"Project 'netcoreapp3.1.TestLib' has the following package references
@@ -14,23 +18,65 @@ namespace CoreTests
    Top-level Package      Requested   Resolved
    > Bootstrap            3.0.0       3.0.7   
    > NuGetDefense         1.0.8       1.0.6   
+   > IdentityServer4      3.1.3       3.1.3          
+
    Transitive Package      Resolved
    > jQuery                1.9.0   
 "), InlineData(@"Das Projekt ""ConsoleApp1"" enthält die folgenden Paketverweise.
    [netcoreapp3.1]: 
    Paket oberster Ebene Angefordert Aufgelöst
    > Bootstrap            3.0.0       3.0.7   
-   > NuGetDefense         1.0.8       1.0.6   
+   > IdentityServer4      3.1.3       3.1.3
+   > NuGetDefense         1.0.8       1.0.6 
+ 
    Transitive Package      Resolved
    > jQuery                1.9.0   
 ")]
         public void DotNetListPackagesTest(string dotnetOutput)
         {
             var dependencies = NuGetFile.ParseListPackages(dotnetOutput);
-            Assert.True(dependencies.Count == 3);
+            Assert.True(dependencies.Count == 4);
             Assert.True(dependencies["Bootstrap"].Version == "3.0.7");
             Assert.True(dependencies["NuGetDefense"].Version == "1.0.6");
             Assert.True(dependencies["jQuery"].Version == "1.9.0");
+            Assert.True(dependencies["IdentityServer4"].Version == "3.1.3");
+        }
+
+        [Theory, InlineData(@"Das Projekt ""ConsoleApp1"" enthält die folgenden Paketverweise.
+   [net5.0]: 
+   Top-level Package                                    Requested         Resolved       
+   > IdentityServer4                                    3.1.3             3.1.3    
+   > NuGetDefense                                       1.0.8             1.0.6   
+    
+
+   Transitive Package                                                                   Resolved
+   > jQuery                                                                             1.9.0   
+
+
+
+
+
+项目'ClassLibrary1'具有以下包引用
+   [net5.0]: 
+   顶级包                    已请求      已解决  
+   > Bootstrap            3.0.0       3.0.7   
+
+
+   Transitive Package                                       Resolved
+   > jQuery                                                 1.9.0   
+
+ ")]
+        public void DotNetListSlnPackagesTest(string dotnetOutput)
+        {
+            var projects = NuGetFile.ParseListSlnPackages(dotnetOutput);
+            Assert.True(projects.Count == 2);
+            Assert.True(projects["ConsoleApp1"].Count == 3);
+            Assert.True(projects["ClassLibrary1"].Count == 2);
+            Assert.True(projects["ConsoleApp1"]["IdentityServer4"].Version == "3.1.3");
+            Assert.True(projects["ClassLibrary1"]["Bootstrap"].Version == "3.0.7");
+            Assert.True(projects["ConsoleApp1"]["NuGetDefense"].Version == "1.0.6");
+            Assert.True(projects["ConsoleApp1"]["jQuery"].Version == "1.9.0");
+            Assert.True(projects["ClassLibrary1"]["jQuery"].Version == "1.9.0");
         }
 
         [Fact]
@@ -59,7 +105,7 @@ namespace CoreTests
             RestorePackage(projectFile);
 
             var packages = nugetFile.LoadPackages("net5.0", false);
-            Assert.Equal(3, packages.Count);
+            Assert.Equal(4, packages.Count);
             Assert.Equal(projectFile, nugetFile.Path);
         }
 
