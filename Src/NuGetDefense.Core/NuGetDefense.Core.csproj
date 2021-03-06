@@ -24,7 +24,7 @@
         <PackageReference Include="MessagePack" Version="2.2.85" />
         <PackageReference Include="MessagePackAnalyzer" Version="2.2.85" />
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
-        <PackageReference Include="NuGet.Versioning" Version="5.8.1" />
+        <PackageReference Include="NuGet.Versioning" Version="5.9.0" />
     </ItemGroup>
     <ItemGroup>
         <None Include="icon.png" Pack="true" PackagePath="\" />
