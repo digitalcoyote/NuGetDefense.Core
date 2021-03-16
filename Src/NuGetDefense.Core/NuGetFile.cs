@@ -169,7 +169,7 @@ namespace NuGetDefense.Core
                 return new Dictionary<string, NuGetPackage>();
             }
 
-            if (errorOutputBuilder.Length > 1) Console.WriteLine($"`dotnet list` Errors: {errorOutputBuilder}");
+            if (errorOutputBuilder.ToString().Trim().Length > 1) Console.WriteLine($"`dotnet list` Errors: {errorOutputBuilder}");
 
             pkgs = ParseListPackages(outputBuilder.ToString());
 
