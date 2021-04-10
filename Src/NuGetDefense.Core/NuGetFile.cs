@@ -251,8 +251,8 @@ namespace NuGetDefense.Core
             if (lines.Length < 3) throw new Exception("Invalid dotnet list output. Run `dotnet restore` then build again.");
             foreach( var projlines in projectLines)
             {
-                var start = projlines[0].IndexOfAny(new[] {'\'', '\"'}) + 1;
-                var length = projlines[0].LastIndexOfAny(new[] {'\'', '\"'}) - start;
+                var start = projlines[0].IndexOfAny(new[] {'\'', '\"', '`'}) + 1;
+                var length = projlines[0].LastIndexOfAny(new[] {'\'', '\"', '`'}) - start;
                 var name = projlines[0].Substring(start, length);
                 projects.Add(name, ParseDotnetListProjectSection(projlines));
             }
@@ -267,7 +267,7 @@ namespace NuGetDefense.Core
             while(skip < source.Length)
             {
                 var list = source.Skip(skip).Take(1).ToList();
-                list.AddRange(source.Skip(skip + 1).TakeWhile(x => x.IndexOf('\"', StringComparison.Ordinal) == -1 && x.IndexOf('\'', StringComparison.Ordinal) == -1));
+                list.AddRange(source.Skip(skip + 1).TakeWhile(x => x.IndexOf('`', StringComparison.Ordinal) == -1 && x.IndexOf('\"', StringComparison.Ordinal) == -1 && x.IndexOf('\'', StringComparison.Ordinal) == -1));
                 var lines = list.ToArray();
                 skip += lines.Length;
                     
