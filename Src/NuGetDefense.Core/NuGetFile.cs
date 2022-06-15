@@ -57,13 +57,14 @@ namespace NuGetDefense.Core
                         LineNumber = ((IXmlLineInfo) x).LineNumber, LinePosition = ((IXmlLineInfo) x).LinePosition
                     }).ToDictionary(p => p.Id);
             else
-                pkgs = XElement.Load(Path, LoadOptions.SetLineInfo).DescendantsAndSelf("PackageReference")
-                    .Where(x => RemoveInvalidVersions(x))
+                // The element may have a namespace of http://schemas.microsoft.com/developer/msbuild/2003 for old-style projects.
+                pkgs = XElement.Load(Path, LoadOptions.SetLineInfo).DescendantsAndSelf()
+                    .Where(x => x.Name.LocalName == "PackageReference" && RemoveInvalidVersions(x))
                     .Select(
                         x => new NuGetPackage
                         {
                             Id = x.AttributeIgnoreCase("Include").Value,
-                            Version = x.AttributeIgnoreCase("Version").Value,
+                            Version = ExtractPackageReferenceVersion(x),
                             LineNumber = ((IXmlLineInfo) x).LineNumber,
                             LinePosition = ((IXmlLineInfo) x).LinePosition
                         }).ToDictionary(p => p.Id);
@@ -122,12 +123,19 @@ namespace NuGetDefense.Core
 
         private bool RemoveInvalidVersions(XElement x)
         {
-            if (NuGetVersion.TryParse(x.AttributeIgnoreCase("Version")?.Value, out var version)) return true;
+            if (NuGetVersion.TryParse(ExtractPackageReferenceVersion(x), out var version)) return true;
             Console.WriteLine(MsBuild.Log(Path, MsBuild.Category.Warning, ((IXmlLineInfo) x).LineNumber, ((IXmlLineInfo) x).LinePosition,
                 version != null
                     ? $"{version} is not a valid NuGetVersion and is being ignored. See 'https://docs.microsoft.com/en-us/nuget/concepts/package-versioning' for more info on valid versions"
                     : "Unable to find a version for this package. It will be ignored."));
             return false;
+        }
+
+        private string ExtractPackageReferenceVersion(XElement x)
+        {
+            // New-style projects have the version as an attribute.
+            // Old-style projects have the Version as a child node and use a namespace.
+            return x.AttributeIgnoreCase("Version")?.Value ?? x.Descendants().Where(x => x.Name.LocalName == "Version").FirstOrDefault()?.Value;
         }
 
         /// <summary>
@@ -169,7 +177,7 @@ namespace NuGetDefense.Core
                 return new Dictionary<string, NuGetPackage>();
             }
 
-            if (errorOutputBuilder.Length > 1) Console.WriteLine($"`dotnet list` Errors: {errorOutputBuilder}");
+            if (errorOutputBuilder.Length > Environment.NewLine.Length) Console.WriteLine($"`dotnet list` Errors: {errorOutputBuilder}");
 
             pkgs = ParseListPackages(outputBuilder.ToString());
 
