@@ -55,7 +55,7 @@ namespace NuGetDefense.Core
                     {
                         Id = x.AttributeIgnoreCase("id").Value, Version = x.AttributeIgnoreCase("version").Value,
                         LineNumber = ((IXmlLineInfo) x).LineNumber, LinePosition = ((IXmlLineInfo) x).LinePosition
-                    }).ToDictionary(p => p.Id);
+                    }).ToDictionary(p => p.PackageUrl);
             else
                 // The element may have a namespace of http://schemas.microsoft.com/developer/msbuild/2003 for old-style projects.
                 pkgs = XElement.Load(Path, LoadOptions.SetLineInfo).DescendantsAndSelf()
@@ -67,7 +67,7 @@ namespace NuGetDefense.Core
                             Version = ExtractPackageReferenceVersion(x),
                             LineNumber = ((IXmlLineInfo) x).LineNumber,
                             LinePosition = ((IXmlLineInfo) x).LinePosition
-                        }).ToDictionary(p => p.Id);
+                        }).ToDictionary(p => p.PackageUrl);
             if (!PackagesConfig)
             {
                 if(pkgs.Count > 0)

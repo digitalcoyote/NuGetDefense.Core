@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <LangVersion>9</LangVersion>
-        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>10</LangVersion>
+        <TargetFramework>net6.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>2.0.4</PackageVersion>
+        <PackageVersion>2.0.5</PackageVersion>
     </PropertyGroup> 
     <PropertyGroup>
         <IncludeSymbols>true</IncludeSymbols>
@@ -18,19 +18,26 @@
         <RepositoryUrl>https://github.com/digitalcoyote/NuGetDefense.Core.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>Security</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="MessagePack" Version="2.4.35" />
-        <PackageReference Include="MessagePackAnalyzer" Version="2.4.35">
+        <PackageReference Include="MessagePack" Version="2.4.59" />
+        <PackageReference Include="MessagePackAnalyzer" Version="2.4.59">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
-        <PackageReference Include="NuGet.Versioning" Version="6.3.1" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+        <PackageReference Include="NuGet.Versioning" Version="6.4.0" />
     </ItemGroup>
     <ItemGroup>
         <None Include="icon.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="..\..\README.md" Pack="true" PackagePath="\">
+        <Link>README.md</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 </Project>
