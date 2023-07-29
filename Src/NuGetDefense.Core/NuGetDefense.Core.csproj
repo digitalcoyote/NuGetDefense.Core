@@ -4,7 +4,8 @@
         <LangVersion>10</LangVersion>
         <TargetFramework>net6.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>2.0.5</PackageVersion>
+        <PackageVersion>6</PackageVersion>
+        <AssemblyVersion>2.0.6</AssemblyVersion>
     </PropertyGroup> 
     <PropertyGroup>
         <IncludeSymbols>true</IncludeSymbols>
@@ -23,13 +24,13 @@
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="MessagePack" Version="2.4.59" />
-        <PackageReference Include="MessagePackAnalyzer" Version="2.4.59">
+        <PackageReference Include="MessagePack" Version="2.5.124" />
+        <PackageReference Include="MessagePackAnalyzer" Version="2.5.124">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
-        <PackageReference Include="NuGet.Versioning" Version="6.4.0" />
+        <PackageReference Include="NuGet.Versioning" Version="6.6.1" />
     </ItemGroup>
     <ItemGroup>
         <None Include="icon.png" Pack="true" PackagePath="\" />
