@@ -63,7 +63,7 @@ namespace NuGetDefense.Core
                     .Select(
                         x => new NuGetPackage
                         {
-                            Id = x.AttributeIgnoreCase("Include").Value,
+                            Id = (x.AttributeIgnoreCase("Include") ?? x.AttributeIgnoreCase("Update")).Value,
                             Version = ExtractPackageReferenceVersion(x),
                             LineNumber = ((IXmlLineInfo) x).LineNumber,
                             LinePosition = ((IXmlLineInfo) x).LinePosition
