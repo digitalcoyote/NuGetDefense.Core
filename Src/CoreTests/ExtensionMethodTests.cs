@@ -8,7 +8,7 @@ namespace CoreTests
     public class ExtensionMethodTests
     {
         private readonly Dictionary<string, Dictionary<string, VulnerabilityEntry>> _vulnDict =
-            new Dictionary<string, Dictionary<string, VulnerabilityEntry>>
+            new()
             {
                 {
                     "bootstrap", new Dictionary<string, VulnerabilityEntry>
