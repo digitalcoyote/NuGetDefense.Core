@@ -5,11 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using NuGet.Common;
-using NuGet.Frameworks;
 using NuGet.ProjectModel;
 using NuGet.Versioning;
 
@@ -43,12 +40,19 @@ namespace NuGetDefense.Core
             }
         }
 
+        [Obsolete("The check referencedProjects functonality does not currently work and may not be fixed as part of this method" )]
+        public Dictionary<string, NuGetPackage> LoadPackages(string targetFramework,
+            bool checkTransitiveDependencies, bool checkReferencedProjects)
+        {
+            return LoadPackages(targetFramework, checkTransitiveDependencies);
+        }
+
         /// <summary>
         ///     Loads NuGet packages in use form packages.config or PackageReferences in the project file
         /// </summary>
         /// <returns></returns>
         public Dictionary<string, NuGetPackage> LoadPackages(string targetFramework = "",
-            bool checkTransitiveDependencies = true, bool checkReferencedProjects = true)
+            bool checkTransitiveDependencies = true)
         {
             var pkgs = new Dictionary<string, NuGetPackage>();
 
@@ -72,17 +76,42 @@ namespace NuGetDefense.Core
                             LineNumber = ((IXmlLineInfo) x).LineNumber,
                             LinePosition = ((IXmlLineInfo) x).LinePosition
                         }).ToDictionary(p => p.PackageUrl);
-            if (!PackagesConfig)
+            if (PackagesConfig)
             {
-                if(pkgs.Count > 0)
+                if (checkTransitiveDependencies)
                 {
-                    Dictionary<string, NuGetPackage[]> projectectReferencePackages;
-                    var resolvedPackages = dotnetListPackages(Path, targetFramework, out projectectReferencePackages);
-
+                    Console.WriteLine(MsBuild.Log(Path, MsBuild.Category.Warning,
+                        "Transitive dependency checking skipped. 'dotnet list package --include-transitive' only supports SDK style NuGet Package References"));
+                }
+            }
+            else
+            {
+                if (pkgs.Count > 0)
+                {
+                    var projectDirectory = Path;
+                    if (Path.EndsWith(".csproj"))
+                    {
+                        projectDirectory = Directory.GetParent(Path).ToString();
+                    }
+                    
+                    var lockFilePath = System.IO.Path.Combine(projectDirectory, "project.assets.json");
+                    if (!File.Exists(lockFilePath))
+                    {
+                        lockFilePath = System.IO.Path.Combine(projectDirectory, "obj", "project.assets.json");
+                        {
+                            if (!File.Exists(lockFilePath))
+                            {
+                                throw new Exception(
+                                    $"Failed to find project.aassets.json in {projectDirectory} or {System.IO.Path.Combine(projectDirectory, "obj")}");
+                            }
+                        }
+                    }
+                    
+                    var resolvedPackages = parseLockFile(lockFilePath, targetFramework);
                     if (checkTransitiveDependencies)
                     {
                         foreach (var pkg in pkgs.Where(
-                            package => resolvedPackages.ContainsKey(package.Key)))
+                                     package => resolvedPackages.ContainsKey(package.Key)))
                         {
                             resolvedPackages[pkg.Key].LineNumber = pkg.Value.LineNumber;
                             resolvedPackages[pkg.Key].LinePosition = pkg.Value.LinePosition;
@@ -92,18 +121,14 @@ namespace NuGetDefense.Core
                     }
                     else
                     {
-                        foreach (var pkg in pkgs.Where(p => resolvedPackages.ContainsKey(p.Key))) pkgs[pkg.Key].Version = resolvedPackages[pkg.Key].Version;
+                        foreach (var pkg in pkgs.Where(p => resolvedPackages.ContainsKey(p.Key)))
+                            pkgs[pkg.Key].Version = resolvedPackages[pkg.Key].Version;
                     }
                 }
                 else
                 {
                     Console.WriteLine($"Skipping dotnet list package. No Packages found for {Path}.");
                 }
-            }
-            else if (checkTransitiveDependencies)
-            {
-                Console.WriteLine(MsBuild.Log(Path, MsBuild.Category.Warning,
-                    "Transitive dependency checking skipped. 'dotnet list package --include-transitive' only supports SDK style NuGet Package References"));
             }
 
             return pkgs;
@@ -218,7 +243,7 @@ namespace NuGetDefense.Core
             IEnumerable<LockFileTargetLibrary>? libraries;
             if (!string.IsNullOrWhiteSpace(targetFrameworkMoniker))
             {
-                libraries = lockFile.Targets.FirstOrDefault(t => t.RuntimeIdentifier == targetFrameworkMoniker)?.Libraries;
+                libraries = lockFile.Targets.FirstOrDefault(t => t.Name == targetFrameworkMoniker)?.Libraries;
             }
             else libraries = lockFile.Targets.SelectMany(t => t.Libraries);
 

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <LangVersion>12</LangVersion>
+        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+        <Nullable>enable</Nullable>
+    </PropertyGroup> 
+    <ItemGroup>
+        <PackageReference Include="MessagePack" Version="2.5.140" />
+        <PackageReference Include="MessagePackAnalyzer" Version="2.5.140">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+        <PackageReference Include="NuGet.ProjectModel" Version="6.9.1" />
+        <PackageReference Include="NuGet.Versioning" Version="6.9.1" />
+    </ItemGroup>
+</Project>

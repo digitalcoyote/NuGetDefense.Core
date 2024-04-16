@@ -30,6 +30,15 @@
       <None Include="TestFiles\net461.TestLib\net461.TestLib.csproj">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="TestFiles\lockfile.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+        <None Include="TestFiles\net8.0.cli\TestCli.csproj">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+      <None Update="TestFiles\net8.0.cli\obj\project.assets.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>

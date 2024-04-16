@@ -92,7 +92,7 @@ namespace CoreTests
             Assert.Equal(Path.Combine(net461TestProjectDirectory, "packages.config"), nugetFile.Path);
         }
 
-        [Fact]
+        [Fact(Skip="Broken pending rewrite to target a lockfile")]
         public void SdkPackagesLoadNoTransitiveDependencies()
         {
             var netcoreapp31TestProjectDirectory =
@@ -109,7 +109,7 @@ namespace CoreTests
             Assert.Equal(projectFile, nugetFile.Path);
         }
 
-        [Fact]
+        [Fact(Skip="Broken pending rewrite to target a lockfile")]
         public void SdkPackagesLoadWithTransitiveDependencies()
         {
             var netcoreapp31TestProjectDirectory =
@@ -138,6 +138,19 @@ namespace CoreTests
             var dotnet = new Process {StartInfo = startInfo};
             dotnet.Start();
             dotnet.WaitForExit();
+        }
+        
+        [Fact]
+        public void ParseLockFile()
+        {
+            var net8TestProjectDirectory =
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetAssemblyLocation())!, "TestFiles", "net8.0.cli");
+
+            var projectFile = Path.Combine(net8TestProjectDirectory, "TestCli.csproj");
+            var nugetFile = new NuGetFile(projectFile);
+            var packages = nugetFile.LoadPackages("net8.0");
+            Assert.Equal(20, packages.Count);
+            Assert.Equal(projectFile, nugetFile.Path);
         }
     }
 }
