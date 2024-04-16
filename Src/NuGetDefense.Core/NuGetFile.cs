@@ -5,8 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using NuGet.Common;
+using NuGet.Frameworks;
+using NuGet.ProjectModel;
 using NuGet.Versioning;
 
 namespace NuGetDefense.Core
@@ -145,6 +149,7 @@ namespace NuGetDefense.Core
         /// <param name="targetFramework"></param>
         /// <param name="projectectReferencePackages"></param>
         /// <returns></returns>
+        [Obsolete("Per Issue #180 `dotnet list` parsing is not reliable use parseLockFile instead")]
         public static Dictionary<string, NuGetPackage> dotnetListPackages(string projectFile,
             string targetFramework,
             out Dictionary<string, NuGetPackage[]> projectectReferencePackages)
@@ -184,15 +189,46 @@ namespace NuGetDefense.Core
             return pkgs;
         }
 
+        [Obsolete("Per Issue #180 `dotnet list` parsing is not reliable use parseLockFile instead")]
         public static Dictionary<string, NuGetPackage> ParseListPackages(string dotnetListOutput)
         {
             var lines = dotnetListOutput.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
-            if (lines.Length < 3) throw new Exception("Invalid dotnet list output. Run `dotnet restore` then build again.");
+            if (lines.Length < 3)
+            {
+                Console.WriteLine($"DEBUG: dotnet list output | {dotnetListOutput}");
+                throw new Exception($"Invalid dotnet list output. Run `dotnet restore` then build again. DOTNET LIST OUTPUT: {dotnetListOutput}");
+            }
             var pkgs = ParseDotnetListProjectSection(lines);
 
             return pkgs;
         }
 
+
+        /// <summary>
+        /// Parses the project.assets.json file which is created when running `dotnet restore`
+        /// </summary>
+        /// <param name="projectAssetsJsonPath">This is a path to the project.assets.json file. It's usually located in the obj folder of the project</param>
+        /// <param name="targetFrameworkMoniker">This is the tfm used to determine the dependencies for a specific target framework. If not provided it will check all present</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static Dictionary<string, NuGetPackage> parseLockFile(string projectAssetsJsonPath, string? targetFrameworkMoniker)
+        {
+            var lockFileFormat = new LockFileFormat();
+            var lockFile = lockFileFormat.Read(projectAssetsJsonPath);
+            IEnumerable<LockFileTargetLibrary>? libraries;
+            if (!string.IsNullOrWhiteSpace(targetFrameworkMoniker))
+            {
+                libraries = lockFile.Targets.FirstOrDefault(t => t.RuntimeIdentifier == targetFrameworkMoniker)?.Libraries;
+            }
+            else libraries = lockFile.Targets.SelectMany(t => t.Libraries);
+
+            if (libraries == null) return new Dictionary<string, NuGetPackage>();
+            
+            return libraries.Where(l =>l.Version != null && !string.IsNullOrWhiteSpace(l.Name)).ToDictionary(l => l.Name!, l => new NuGetPackage{Id = l.Name!, Version = l.Version!.ToString()} );
+
+        }
+
+        [Obsolete("Per Issue #180 `dotnet list` parsing is not reliable use parseLockFile instead")]
         private static Dictionary<string, NuGetPackage> ParseDotnetListProjectSection(string[] lines)
         {
             var pkgs = lines
@@ -212,7 +248,7 @@ namespace NuGetDefense.Core
                 .ToDictionary(p => p.Id);
 
             var transitivelines = lines
-                // Skip the informational Text at hte beginning
+                // Skip the informational Text at the beginning
                 .SkipWhile(l => l.IndexOf('>') == -1)
                 // Skip the Direct Dependencies
                 .SkipWhile(l => l.IndexOf('>') != -1)
@@ -247,6 +283,7 @@ namespace NuGetDefense.Core
         }
 
 
+        [Obsolete("Per Issue #180 `dotnet list` parsing is not reliable use parseSlnLockFile instead")]
         public static Dictionary<string, Dictionary<string, NuGetPackage>> ParseListSlnPackages(string dotnetListOutput)
         {
             var projects = new Dictionary<string, Dictionary<string, NuGetPackage>>();
@@ -268,6 +305,7 @@ namespace NuGetDefense.Core
             return projects;
         }
         
+        [Obsolete("Per Issue #180 `dotnet list` parsing is not reliable use parseLockFile instead")]
         public static IEnumerable<string[]> DotNetListOutputByProject(
             string[] source)
         {
@@ -283,6 +321,7 @@ namespace NuGetDefense.Core
             }
         }
 
+        [Obsolete("Per Issue #180 `dotnet list` parsing is not reliable use parseLockFile instead")]
         private static bool ParseProjectLines(in IEnumerable<string> projectReferenceLines)
         {
             throw new NotImplementedException();

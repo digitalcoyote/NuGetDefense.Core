@@ -5,6 +5,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageVersion>2.0.8</PackageVersion>
         <AssemblyVersion>2.0.8</AssemblyVersion>
+        <PackageVersion>2.0.8.1-issue180</PackageVersion>
         <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
         <Nullable>enable</Nullable>
     </PropertyGroup> 
@@ -31,6 +32,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+        <PackageReference Include="NuGet.ProjectModel" Version="6.9.1" />
         <PackageReference Include="NuGet.Versioning" Version="6.9.1" />
     </ItemGroup>
     <ItemGroup>
