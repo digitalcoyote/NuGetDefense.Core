@@ -92,7 +92,7 @@ namespace CoreTests
             Assert.Equal(Path.Combine(net461TestProjectDirectory, "packages.config"), nugetFile.Path);
         }
 
-        [Fact(Skip="Broken pending rewrite to target a lockfile")]
+        [Fact(Skip="Broken pending rewrite. Needs a lock file created for testing")]
         public void SdkPackagesLoadNoTransitiveDependencies()
         {
             var netcoreapp31TestProjectDirectory =
@@ -109,7 +109,7 @@ namespace CoreTests
             Assert.Equal(projectFile, nugetFile.Path);
         }
 
-        [Fact(Skip="Broken pending rewrite to target a lockfile")]
+        [Fact(Skip="Broken pending rewrite. Needs a lock file created for testing")]
         public void SdkPackagesLoadWithTransitiveDependencies()
         {
             var netcoreapp31TestProjectDirectory =
@@ -141,7 +141,20 @@ namespace CoreTests
         }
         
         [Fact]
-        public void ParseLockFile()
+        public void ParseLockFileAllFrameworks()
+        {
+            var net8TestProjectDirectory =
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetAssemblyLocation())!, "TestFiles", "net8.0.cli");
+
+            var projectFile = Path.Combine(net8TestProjectDirectory, "TestCli.csproj");
+            var nugetFile = new NuGetFile(projectFile);
+            var packages = nugetFile.LoadPackages();
+            Assert.Equal(20, packages.Count);
+            Assert.Equal(projectFile, nugetFile.Path);
+        }        
+        
+        [Fact]
+        public void ParseLockFileNet8()
         {
             var net8TestProjectDirectory =
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetAssemblyLocation())!, "TestFiles", "net8.0.cli");
@@ -149,7 +162,7 @@ namespace CoreTests
             var projectFile = Path.Combine(net8TestProjectDirectory, "TestCli.csproj");
             var nugetFile = new NuGetFile(projectFile);
             var packages = nugetFile.LoadPackages("net8.0");
-            Assert.Equal(20, packages.Count);
+            Assert.Equal(19, packages.Count);
             Assert.Equal(projectFile, nugetFile.Path);
         }
     }

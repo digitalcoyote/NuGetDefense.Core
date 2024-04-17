@@ -9,7 +9,7 @@ NuGetDefense.Core includes the core functionality from NuGetDefense and is the b
 * Checking Checking for Vulnerabilities using a dictionary of vulnerabilities from a source.
 * Reporting Vulnerabilities to MSBuild
 * Transitive Dependency Retrieval
-* Parsing "NuGet file" and `dotnet list` for packages
+* Parsing "NuGet file" and `project.assets.json` for packages
 
 ## Problems?
 Report any issues on the main [NuGetDefense repository](https://github.com/digitalcoyote/NuGetDefense.git)

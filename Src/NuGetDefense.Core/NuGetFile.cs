@@ -248,8 +248,21 @@ namespace NuGetDefense.Core
             else libraries = lockFile.Targets.SelectMany(t => t.Libraries);
 
             if (libraries == null) return new Dictionary<string, NuGetPackage>();
-            
-            return libraries.Where(l =>l.Version != null && !string.IsNullOrWhiteSpace(l.Name)).ToDictionary(l => l.Name!, l => new NuGetPackage{Id = l.Name!, Version = l.Version!.ToString()} );
+
+            Dictionary<string, NuGetPackage> dictionary = new Dictionary<string, NuGetPackage>();
+            foreach (var l in libraries)
+            {
+                if (l.Version != null && !string.IsNullOrWhiteSpace(l.Name))
+                {
+                    var pkg = new NuGetPackage { Id = l.Name!, Version = l.Version!.ToString() };
+                    if (!dictionary.TryAdd(pkg.PackageUrl, pkg))
+                    {
+                        Console.WriteLine($"Skipping {pkg.PackageUrl} as it was already added to the packages from this project");
+                    }
+                }
+            }
+
+            return dictionary;
 
         }
 
