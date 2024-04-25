@@ -195,23 +195,38 @@ namespace NuGetDefense.Core
             var outputBuilder = new StringBuilder();
             var errorOutputBuilder = new StringBuilder();
 
-            dotnet.OutputDataReceived += (sender, args) => outputBuilder.AppendLine(args.Data);
-            dotnet.ErrorDataReceived += (sender, args) => errorOutputBuilder.AppendLine(args.Data);
+            dotnet.OutputDataReceived += (sender, args) =>
+            {
+                lock (outputBuilder)
+                {
+                    outputBuilder.AppendLine(args.Data);
+                }
+            };
+            dotnet.ErrorDataReceived += (sender, args) =>
+            {
+                lock (outputBuilder)
+                {
+                    errorOutputBuilder.AppendLine(args.Data);
+                }
+            };
             dotnet.Start();
             dotnet.BeginOutputReadLine();
             dotnet.BeginErrorReadLine();
-            if (!SpinWait.SpinUntil(() => dotnet.HasExited, TimeSpan.FromMinutes(1)))
+            
+            if (dotnet.WaitForExit( 60000 ))
             {
-                Console.WriteLine("dotnet list failed to exit after one minute");
-                
-                return new Dictionary<string, NuGetPackage>();
+                dotnet.WaitForExit();
+
+                if (errorOutputBuilder.Length > Environment.NewLine.Length) Console.WriteLine($"`dotnet list` Errors: {errorOutputBuilder}");
+
+                pkgs = ParseListPackages(outputBuilder.ToString());
+
+                return pkgs;
             }
-
-            if (errorOutputBuilder.Length > Environment.NewLine.Length) Console.WriteLine($"`dotnet list` Errors: {errorOutputBuilder}");
-
-            pkgs = ParseListPackages(outputBuilder.ToString());
-
-            return pkgs;
+            
+            Console.WriteLine("dotnet list failed to exit after one minute");
+                
+            return new Dictionary<string, NuGetPackage>();    
         }
 
         [Obsolete("Per Issue #180 `dotnet list` parsing is not reliable use parseLockFile instead")]
