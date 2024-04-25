@@ -89,9 +89,9 @@ namespace NuGetDefense.Core
                 if (pkgs.Count > 0)
                 {
                     var projectDirectory = Path;
-                    if (Path.EndsWith(".csproj"))
+                    if (Path.ToLower().EndsWith(".csproj") || Path.ToLower().EndsWith(".vbproj") || Path.ToLower().EndsWith(".fsproj"))
                     {
-                        projectDirectory = Directory.GetParent(Path).ToString();
+                        projectDirectory = Directory.GetParent(Path)?.ToString();
                     }
                     
                     var lockFilePath = System.IO.Path.Combine(projectDirectory, "project.assets.json");
