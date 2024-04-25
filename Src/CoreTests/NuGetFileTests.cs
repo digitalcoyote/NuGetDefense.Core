@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using NuGetDefense.Core;
