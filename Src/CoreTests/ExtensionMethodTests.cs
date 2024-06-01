@@ -18,15 +18,15 @@ namespace CoreTests
                             {
                                 Cwe = "TestCWE",
                                 Description = "TestDescription",
-                                References = new[] {"TestReference1", "TestReference2"},
-                                Score = 4.55,
+                                References = ["TestReference1", "TestReference2"],
+                                Score = 4.55M,
                                 Vector = Vulnerability.AccessVectorType.LOCAL,
                                 Vendor = "XUnit",
-                                Versions = new[]
-                                {
+                                Versions =
+                                [
                                     "[4.0.0, 4.1.2)",
                                     "(, 3.4.0)"
-                                }
+                                ]
                             }
                         }
                     }

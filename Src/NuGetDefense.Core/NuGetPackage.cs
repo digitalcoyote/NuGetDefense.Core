@@ -2,7 +2,7 @@
 {
     public class NuGetPackage
     {
-        public string[] Dependencies = System.Array.Empty<string>();
+        public string[] Dependencies = [];
         public int? LineNumber;
         public int? LinePosition;
 

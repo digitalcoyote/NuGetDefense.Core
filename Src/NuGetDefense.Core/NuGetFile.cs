@@ -232,7 +232,7 @@ namespace NuGetDefense.Core
         [Obsolete("Per Issue #180 `dotnet list` parsing is not reliable use parseLockFile instead")]
         public static Dictionary<string, NuGetPackage> ParseListPackages(string dotnetListOutput)
         {
-            var lines = dotnetListOutput.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = dotnetListOutput.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
             if (lines.Length < 3)
             {
                 Console.WriteLine($"DEBUG: dotnet list output | {dotnetListOutput}");
@@ -342,15 +342,15 @@ namespace NuGetDefense.Core
             var projects = new Dictionary<string, Dictionary<string, NuGetPackage>>();
             //Chunk by indexes of ' or "" containing lines
             //Each Chunk is a project
-            var lines = dotnetListOutput.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = dotnetListOutput.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
 
             var projectLines = DotNetListOutputByProject(lines);
             // I don't like throwing an exception here. An Early return for a bool method with Dict out may be better
             if (lines.Length < 3) throw new Exception("Invalid dotnet list output. Run `dotnet restore` then build again.");
             foreach( var projlines in projectLines)
             {
-                var start = projlines[0].IndexOfAny(new[] {'\'', '\"', '`'}) + 1;
-                var length = projlines[0].LastIndexOfAny(new[] {'\'', '\"', '`'}) - start;
+                var start = projlines[0].IndexOfAny(['\'', '\"', '`']) + 1;
+                var length = projlines[0].LastIndexOfAny(['\'', '\"', '`']) - start;
                 var name = projlines[0].Substring(start, length);
                 projects.Add(name, ParseDotnetListProjectSection(projlines));
             }
