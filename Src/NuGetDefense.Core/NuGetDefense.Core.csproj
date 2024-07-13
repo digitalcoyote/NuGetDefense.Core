@@ -3,9 +3,9 @@
     <PropertyGroup>
         <LangVersion>12</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>2.0.13.1</PackageVersion>
-        <AssemblyVersion>2.0.13.1</AssemblyVersion>
-        <PackageVersion>2.0.13.1</PackageVersion>
+        <PackageVersion>2.0.13.2</PackageVersion>
+        <AssemblyVersion>2.0.13.2</AssemblyVersion>
+        <PackageVersion>2.0.13.2</PackageVersion>
         <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <Copyright>Curtis Carter 2024</Copyright>
