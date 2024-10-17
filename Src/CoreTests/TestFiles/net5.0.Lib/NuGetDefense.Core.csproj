@@ -14,7 +14,7 @@
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
     <ItemGroup>
-      <PackageReference Include="MessagePack" Version="2.2.60" />
+      <PackageReference Include="MessagePack" Version="2.5.187" />
       <PackageReference Include="MessagePackAnalyzer" Version="2.2.60" />
       <PackageReference Include="NuGet.Versioning" Version="5.7.0" />
     </ItemGroup>
