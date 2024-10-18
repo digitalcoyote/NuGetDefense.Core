@@ -3,9 +3,9 @@
     <PropertyGroup>
         <LangVersion>12</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>2.0.13.2</PackageVersion>
-        <AssemblyVersion>2.0.13.2</AssemblyVersion>
-        <PackageVersion>2.0.13.2</PackageVersion>
+        <PackageVersion>2.0.13.3</PackageVersion>
+        <AssemblyVersion>2.0.13.3</AssemblyVersion>
+        <PackageVersion>2.0.13.3</PackageVersion>
         <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <Copyright>Curtis Carter 2024</Copyright>
@@ -27,14 +27,14 @@
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="MessagePack" Version="2.5.171" />
-        <PackageReference Include="MessagePackAnalyzer" Version="2.5.171">
+        <PackageReference Include="MessagePack" Version="2.5.187" />
+        <PackageReference Include="MessagePackAnalyzer" Version="2.5.187">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
-        <PackageReference Include="NuGet.ProjectModel" Version="6.10.1" />
-        <PackageReference Include="NuGet.Versioning" Version="6.10.1" />
+        <PackageReference Include="NuGet.ProjectModel" Version="6.11.1" />
+        <PackageReference Include="NuGet.Versioning" Version="6.11.1" />
     </ItemGroup>
     <ItemGroup>
         <None Include="icon.png" Pack="true" PackagePath="\" />
