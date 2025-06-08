@@ -3,8 +3,8 @@
     <PropertyGroup>
         <LangVersion>12</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>2.0.13.4</PackageVersion>
-        <AssemblyVersion>2.0.13.4</AssemblyVersion>
+        <PackageVersion>2.0.14.0</PackageVersion>
+        <AssemblyVersion>2.0.14.0</AssemblyVersion>
         <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <Copyright>Curtis Carter 2025</Copyright>
@@ -31,9 +31,9 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.1" />
-        <PackageReference Include="NuGet.ProjectModel" Version="6.12.1" />
-        <PackageReference Include="NuGet.Versioning" Version="6.12.1" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.5" />
+        <PackageReference Include="NuGet.ProjectModel" Version="6.14.0" />
+        <PackageReference Include="NuGet.Versioning" Version="6.14.0" />
     </ItemGroup>
     <ItemGroup>
         <None Include="icon.png" Pack="true" PackagePath="\" />
