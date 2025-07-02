@@ -39,7 +39,7 @@ namespace NuGetDefense.Core
         /// <param name="code">Code to use to identify the problem</param>
         /// <param name="category">Warning or Error</param>
         /// <param name="text">message for the error</param>
-        public static string Log(string file, Category category, string code, string text)
+        public static string Log(string? file, Category category, string code, string text)
         {
             file ??= FallbackFileName;
             return
@@ -52,7 +52,7 @@ namespace NuGetDefense.Core
         /// <param name="file">file the problem is in</param>
         /// <param name="category">Warning or Error</param>
         /// <param name="text">message for the error</param>
-        public static string Log(string file, Category category, string text)
+        public static string Log(string? file, Category category, string text)
         {
             file ??= FallbackFileName;
             return
@@ -67,7 +67,7 @@ namespace NuGetDefense.Core
         /// <param name="linePosition">1 based index to use to reference where in the file the problem is</param>
         /// <param name="category">Warning or Error</param>
         /// <param name="text">message for the error</param>
-        public static string Log(string file, Category category, int? lineNumber, int? linePosition, string text)
+        public static string Log(string? file, Category category, int? lineNumber, int? linePosition, string text)
         {
             file ??= FallbackFileName;
             return
