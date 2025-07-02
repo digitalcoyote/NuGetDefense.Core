@@ -6,6 +6,10 @@ namespace NuGetDefense.Core
     /// </summary>
     public static class MsBuild
     {
+        /// <summary>
+        /// Fallback file name to use if provided file is null.
+        /// </summary>
+        private const string FallbackFileName = "NuGetDefense";
         public enum Category
         {
             Warning,
@@ -21,8 +25,9 @@ namespace NuGetDefense.Core
         /// <param name="linePosition">1 based index to use to reference where in the file the problem is</param>
         /// <param name="category">Warning or Error</param>
         /// <param name="text">message for the error</param>
-        public static string Log(string file, Category category, string code, int? lineNumber, int? linePosition, string text)
+        public static string Log(string? file, Category category, string code, int? lineNumber, int? linePosition, string text)
         {
+            file ??= FallbackFileName;
             return
                 $"{file}({lineNumber},{linePosition}) : {category.ToString()} : {code} : {text}";
         }
@@ -36,6 +41,7 @@ namespace NuGetDefense.Core
         /// <param name="text">message for the error</param>
         public static string Log(string file, Category category, string code, string text)
         {
+            file ??= FallbackFileName;
             return
                 $"{file}: {category.ToString()} : {code} : {text}";
         }
@@ -48,6 +54,7 @@ namespace NuGetDefense.Core
         /// <param name="text">message for the error</param>
         public static string Log(string file, Category category, string text)
         {
+            file ??= FallbackFileName;
             return
                 $"{file}: {category.ToString()} : {text}";
         }
@@ -62,6 +69,7 @@ namespace NuGetDefense.Core
         /// <param name="text">message for the error</param>
         public static string Log(string file, Category category, int? lineNumber, int? linePosition, string text)
         {
+            file ??= FallbackFileName;
             return
                 $"{file}({lineNumber},{linePosition}) : {category.ToString()} : {text}";
         }
