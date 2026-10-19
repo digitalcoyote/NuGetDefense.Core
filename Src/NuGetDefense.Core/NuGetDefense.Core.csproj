@@ -26,8 +26,8 @@
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="MessagePack" Version="3.1.7" />
-        <PackageReference Include="MessagePackAnalyzer" Version="3.1.7">
+        <PackageReference Include="MessagePack" Version="3.1.9" />
+        <PackageReference Include="MessagePackAnalyzer" Version="3.1.9">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
